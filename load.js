@@ -1,4 +1,13 @@
 import http from 'k6/http';
+import { Trend, Counter } from 'k6/metrics';
+
+let firstTrend = new Trend('CUSTOM_root_duration');
+let secondTrend = new Trend('CUSTOM_contacts_duration');
+
+let firstTrendCounter = new Counter('CUSTOM_root_count');
+let secondTrendCounter = new Counter('CUSTOM_contacts_count');
+
+
 
 export let options = {
     scenarios: {
@@ -14,7 +23,7 @@ export let options = {
             executor: 'constant-arrival-rate',
             rate: 120,
             timeUnit: '1m', // 90 iterations per minute, i.e. 1.5 RPS
-            duration: '10s',
+            duration: '11s',
             preAllocatedVUs: 10, 
             exec: 'root', 
         },
@@ -31,12 +40,12 @@ export let options = {
 
 export function contacts() {
     let res =  http.get('https://test.k6.io/contacts.php');
-//    secondTrend.add(res.timings.duration);
-//    secondTrendCounter.add(1);
+    secondTrend.add(res.timings.duration);
+    secondTrendCounter.add(1);
  }
 
 export function root() {
    let res =  http.get('https://test.k6.io/');
-//   firstTrend.add(res.timings.duration);
-//   firstTrendCounter.add(1);
+   firstTrend.add(res.timings.duration);
+   firstTrendCounter.add(1);
 }
